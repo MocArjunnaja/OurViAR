@@ -2,23 +2,24 @@
 
 <div align="center">
 
-# OurViAR — KIDMAN ROOM VR
+# OurViAR — X-Ray Education VR
 
-<em>Immersive Virtual Learning Experience Through WebVR Technology</em>
+<em>Reducing Patient Anxiety Through Immersive Pre-Procedure Virtual Reality Education</em>
 
 <!-- BADGES -->
-<img src="https://img.shields.io/badge/A--Frame-EF2D5E.svg?style=flat&logo=aframe&logoColor=white" alt="A-Frame">
-<img src="https://img.shields.io/badge/WebVR-Supported-brightgreen.svg?style=flat" alt="WebVR">
+<img src="https://img.shields.io/badge/A--Frame-1.3.0-EF2D5E.svg?style=flat&logo=aframe&logoColor=white" alt="A-Frame">
+<img src="https://img.shields.io/badge/WebVR-Supported-4CAF50.svg?style=flat" alt="WebVR">
 <img src="https://img.shields.io/badge/HTML5-E34F26.svg?style=flat&logo=HTML5&logoColor=white" alt="HTML5">
 <img src="https://img.shields.io/badge/JavaScript-F7DF1E.svg?style=flat&logo=JavaScript&logoColor=black" alt="JavaScript">
-<img src="https://img.shields.io/badge/GLTF-Model-blue.svg?style=flat" alt="GLTF">
+<img src="https://img.shields.io/badge/Adaptive%20Learning-Enabled-blue.svg?style=flat" alt="Adaptive Learning">
 
 <br><br>
 <em>Built with the tools and technologies:</em>
 
-<img src="https://img.shields.io/badge/A--Frame-1.3.0-EF2D5E.svg?style=flat&logo=aframe&logoColor=white" alt="A-Frame">
+<img src="https://img.shields.io/badge/A--Frame-EF2D5E.svg?style=flat&logo=aframe&logoColor=white" alt="A-Frame">
 <img src="https://img.shields.io/badge/Blender-F5792A.svg?style=flat&logo=Blender&logoColor=white" alt="Blender">
 <img src="https://img.shields.io/badge/HTML-E34F26.svg?style=flat&logo=HTML5&logoColor=white" alt="HTML">
+<img src="https://img.shields.io/badge/JavaScript-F7DF1E.svg?style=flat&logo=JavaScript&logoColor=black" alt="JavaScript">
 
 </div>
 
@@ -29,7 +30,10 @@
 ## Table of Contents
 
 - [Overview](#overview)
+- [The Problem](#the-problem)
 - [Features](#features)
+- [Learning Flow](#learning-flow)
+- [Adaptive System](#adaptive-system)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
@@ -43,20 +47,22 @@
 
 ## Overview
 
-**OurViAR — KIDMAN ROOM** adalah aplikasi Virtual Reality berbasis web yang dibangun menggunakan A-Frame. Project ini merupakan tugas mata kuliah AR/VR yang menghadirkan pengalaman belajar immersive di dalam lingkungan ruangan virtual 3D.
+**OurViAR** adalah simulasi Virtual Reality berbasis web yang dirancang untuk mempersiapkan pasien sebelum menjalani pemeriksaan X-Ray. Pasien yang sedang menunggu di ruang tunggu rumah sakit dapat memakai headset VR dan masuk ke simulasi virtual ruang radiologi — memahami prosedur, mendengar simulasi suara alat, dan berinteraksi secara bertahap sebelum masuk ke ruang pemeriksaan nyata.
 
-User dapat menjelajahi ruangan virtual, menonton video pembelajaran, dan menjawab pertanyaan evaluasi — semuanya langsung dari browser tanpa perlu aplikasi tambahan.
+Dibangun menggunakan **A-Frame (WebVR)** sehingga bisa berjalan langsung di browser tanpa instalasi aplikasi tambahan.
 
-**Mengapa OurViAR?**
+---
 
-Project ini mengeksplorasi potensi WebVR sebagai medium pembelajaran interaktif:
+## The Problem
 
-- 🏠 **Lingkungan 3D Imersif:** Ruangan virtual Kidman Room yang detail, dapat dijelajahi secara bebas.
-- 🎮 **Navigasi Intuitif:** Gerakan WASD + mouse look yang responsif, mendukung mode headset VR.
-- 🎬 **Video Pembelajaran:** Konten video edukatif yang diputar langsung di dalam scene VR.
-- 🖱️ **Interaksi Bertahap:** Tombol DUDUK, NEXT, dan TIDAK untuk mengontrol alur pembelajaran.
-- ❓ **Evaluasi Akhir:** Pertanyaan kuis di akhir sesi untuk mengukur pemahaman.
-- 🌐 **Zero Install:** Berjalan langsung di browser modern, tidak perlu install apapun.
+Banyak pasien — terutama anak-anak, lansia, dan pasien dengan kecemasan medis — datang ke ruang X-Ray tanpa pemahaman tentang prosedur yang akan dijalani. Hal ini menyebabkan:
+
+- Kecemasan berlebih sebelum dan selama pemeriksaan
+- Gerakan tidak terkontrol yang merusak hasil foto X-Ray
+- Pertanyaan berulang kepada petugas yang menyita waktu
+- Pengalaman buruk yang mempengaruhi kepatuhan medis ke depannya
+
+**OurViAR hadir sebagai solusi edukasi pre-prosedur yang imersif dan adaptif.**
 
 ---
 
@@ -64,15 +70,86 @@ Project ini mengeksplorasi potensi WebVR sebagai medium pembelajaran interaktif:
 
 | Fitur | Deskripsi | Status |
 |-------|-----------|--------|
-| Scene VR 3D | Ruangan Kidman Room dalam format `.glb` | ✅ Done |
-| Navigasi WASD | Bergerak bebas di dalam ruangan | ✅ Done |
-| Mouse Look | Lihat ke segala arah dengan mouse/drag | ✅ Done |
-| VR Headset Mode | Tombol enter VR untuk headset (Cardboard, Quest) | ✅ Done |
-| Tombol DUDUK | User berpindah ke posisi duduk di dalam ruangan | 🔧 In Progress |
-| Trigger Video | Memutar video pembelajaran di dalam scene | 🔧 In Progress |
-| Tombol NEXT | Lanjut ke bagian konten berikutnya | 🔧 In Progress |
-| Tombol TIDAK | Skip atau kembali ke posisi awal | 🔧 In Progress |
-| Pertanyaan Akhir | Tampilan kuis evaluasi setelah video selesai | 🔧 In Progress |
+| 🏥 Lingkungan Rumah Sakit Virtual | Ruang radiologi 3D yang bisa dijelajahi | ✅ Done |
+| 🚶 Navigasi Bebas | WASD + mouse look, mode VR headset | ✅ Done |
+| 🪑 Interaksi Duduk | Klik kursi — avatar berpindah ke posisi duduk | 🔧 In Progress |
+| 🎬 Video Edukasi | Video tentang prosedur X-Ray diputar di dalam scene | 🔧 In Progress |
+| 🧠 Adaptive Learning | Sistem If-Else: video diulang jika pasien belum paham | 🔧 In Progress |
+| 🔊 Immersive Audio | Simulasi suara mesin X-Ray dan suasana ruangan | 🔧 In Progress |
+| ❓ Evaluasi Pemahaman | Pertanyaan "Apakah Anda memahami?" setelah tiap bagian | 🔧 In Progress |
+| ✅ Konfirmasi Kesiapan | "Apakah Anda siap?" sebelum simulasi berakhir | 🔧 In Progress |
+
+---
+
+## Learning Flow
+
+Berikut alur pengalaman pasien di dalam VR:
+
+```
+[Pasien memakai headset]
+        │
+        ▼
+[Masuk lingkungan VR — Ruang Radiologi]
+        │
+        ▼
+[Instruksi: "Silakan menuju kursi pemeriksaan"]
+        │
+        ▼
+[Pasien klik kursi → Avatar duduk]
+        │
+        ▼
+[Tombol "Play Video" muncul]
+        │
+        ▼
+[Video edukasi X-Ray diputar]
+  • Apa itu X-Ray
+  • Apakah sakit?
+  • Proses pemeriksaan
+  • Posisi tubuh yang benar
+  • Suara alat yang akan didengar
+        │
+        ▼
+[Pertanyaan muncul: "Apakah Anda memahami?"]
+       / \
+      /   \
+    YA   BELUM
+     │     │
+     │     ▼
+     │  [Video diulang / penjelasan alternatif]
+     │     │
+     └──►  ▼
+[Simulasi suara mesin X-Ray]
+"Nanti Anda akan mendengar suara seperti ini..."
+        │
+        ▼
+[Pertanyaan: "Apakah Anda siap?"]
+        │
+        ▼
+[Sesi VR selesai — Pasien siap masuk ruangan nyata]
+```
+
+---
+
+## Adaptive System
+
+Sistem ini menggunakan **branching logic** sederhana berbasis respons pasien:
+
+```javascript
+// Pseudocode alur adaptif
+if (pasienMemahami === "YA") {
+  lanjutKeBagianBerikutnya();
+} else {
+  // Belum paham
+  ulangVideoAtauTampilkanPenjelasanAlternatif();
+}
+```
+
+Setiap segmen video memiliki checkpoint pemahaman. Jika pasien memilih **"Belum"**, sistem akan:
+1. Mengulang video segmen tersebut, atau
+2. Menampilkan animasi/penjelasan yang lebih sederhana, atau
+3. Menampilkan teks ringkasan poin penting
+
+Pasien baru bisa lanjut ke bagian berikutnya setelah memilih **"Ya"** atau setelah maksimal 2 kali pengulangan.
 
 ---
 
@@ -80,41 +157,34 @@ Project ini mengeksplorasi potensi WebVR sebagai medium pembelajaran interaktif:
 
 ### Prerequisites
 
-Pastikan kamu memiliki salah satu dari berikut:
+- Browser modern: **Chrome** (v90+), Firefox, atau Edge
+- Python 3.x, Node.js, atau VS Code + Live Server extension
 
-- Browser modern: **Chrome** (v90+), Firefox, Edge
-- Python 3.x (untuk menjalankan HTTP server lokal), atau
-- VS Code dengan extension **Live Server**
-
-> **Penting:** File `.glb` tidak dapat diload via `file://` secara langsung. Wajib menggunakan HTTP server.
+> **Penting:** File `.glb` tidak dapat diload via `file://`. Wajib pakai HTTP server lokal.
 
 ### Installation
 
-1. Clone atau download repository ini:
-   ```bash
-   git clone https://github.com/username/OurViAR.git
-   cd OurViAR
-   ```
+```bash
+git clone https://github.com/username/OurViAR.git
+cd OurViAR
+```
 
-2. Pastikan file `kidman_room.glb` berada di dalam folder project (satu level dengan `Main.html`).
+Pastikan file `kidman_room.glb` dan file video berada di folder yang sesuai.
 
 ### Usage
 
-**Opsi 1 — Python HTTP Server:**
+**Python:**
 ```bash
-# Di dalam folder OurViAR/
 python -m http.server 8000
+# Buka: http://localhost:8000/Main.html
 ```
-Kemudian buka browser dan akses: `http://localhost:8000/Main.html`
 
-**Opsi 2 — VS Code Live Server:**
-1. Install extension **Live Server** di VS Code
-2. Klik kanan `Main.html` → **Open with Live Server**
-
-**Opsi 3 — Node.js:**
+**Node.js:**
 ```bash
 npx serve .
 ```
+
+**VS Code:** Klik kanan `Main.html` → Open with Live Server
 
 ---
 
@@ -122,15 +192,15 @@ npx serve .
 
 | Input | Aksi |
 |-------|------|
-| `W` / `↑` | Maju |
-| `S` / `↓` | Mundur |
-| `A` / `←` | Geser kiri |
-| `D` / `→` | Geser kanan |
+| `W A S D` / Arrow Keys | Bergerak di ruangan |
 | Mouse drag | Lihat ke segala arah |
-| Tombol VR (kanan bawah) | Masuk mode VR headset |
-| Tombol **DUDUK** | Pindah ke posisi duduk |
-| Tombol **NEXT** | Lanjut konten berikutnya |
-| Tombol **TIDAK** | Skip / kembali |
+| Klik objek | Berinteraksi (duduk, play video, pilih jawaban) |
+| Tombol VR (pojok kanan bawah) | Masuk mode headset VR |
+| **DUDUK** | Pindah ke posisi duduk |
+| **PLAY VIDEO** | Mulai video edukasi |
+| **YA / BELUM** | Jawab pertanyaan pemahaman |
+| **NEXT** | Lanjut ke bagian berikutnya |
+| **SIAP** | Konfirmasi kesiapan, akhiri sesi VR |
 
 ---
 
@@ -141,29 +211,32 @@ OurViAR/
 ├── Main.html              # Entry point — scene VR utama
 ├── README.md              # Dokumentasi project
 ├── PLANNER.md             # Pembagian tugas tim
-├── LICENSE                # Lisensi project
-├── kidman_room.glb        # Model 3D ruangan (Blender export)
+├── LICENSE
+├── kidman_room.glb        # Model 3D ruang radiologi
 ├── video/
-│   └── materi.mp4         # Video pembelajaran
+│   ├── xray_intro.mp4     # Video: apa itu X-Ray
+│   ├── xray_process.mp4   # Video: proses pemeriksaan
+│   └── xray_position.mp4  # Video: posisi tubuh
 ├── sounds/
-│   └── ambient.mp3        # Audio ambient (opsional)
+│   ├── xray_machine.mp3   # Suara mesin X-Ray
+│   └── ambient_hospital.mp3  # Suasana ruang tunggu
 └── docs/
-    ├── SCRIPT_NARASI.md   # Script narasi video
-    └── STORYBOARD.md      # Storyboard konten
+    ├── SCRIPT_NARASI.md   # Script lengkap narasi
+    └── STORYBOARD.md      # Storyboard alur VR
 ```
 
 ---
 
 ## Team
 
-Project ini dikerjakan oleh tim untuk tugas mata kuliah **Augmented & Virtual Reality**.
+Project ini dikerjakan untuk tugas mata kuliah **Augmented & Virtual Reality**.
 
 | Nama | Peran |
 |------|-------|
-| **Tegar** | Konsep Video Pembelajaran — script narasi, storyboard, pertanyaan akhir |
+| **Tegar** | Konsep & Script — narasi, storyboard, pertanyaan evaluasi |
 | **Arjun** | Setup Scene VR — struktur A-Frame, model GLB, lighting, kamera |
-| **Abdillah** | Navigasi & Interaksi — WASD, tombol DUDUK/NEXT/TIDAK, trigger video |
-| **Sihaam** | UI, Testing & Bug Fixing — instruksi, label tombol, kuis, QA |
+| **Abdillah** | Navigasi & Interaksi — WASD, tombol DUDUK/NEXT, adaptive logic |
+| **Sihaam** | UI, Testing & Bug Fixing — instruksi, label, kuis, QA |
 | **Leandro** | Optimasi Asset — export `.glb`, optimasi texture dan ukuran file |
 
 ---
@@ -175,5 +248,7 @@ Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information
 ---
 
 <div align="center">
+  <sub>Project AR/VR — Simulasi Edukasi Pasien X-Ray</sub>
+  <br>
   <a href="#top">Back to top</a>
 </div>

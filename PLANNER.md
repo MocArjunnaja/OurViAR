@@ -1,6 +1,7 @@
-# PLANNER — Project AR/VR KIDMAN ROOM
+# PLANNER — Project AR/VR X-Ray Education VR
 
-**Nama Project:** OurViAR — KIDMAN ROOM VR  
+**Nama Project:** OurViAR — X-Ray Education VR  
+**Konsep:** Simulasi VR pra-prosedur X-Ray untuk mengurangi kecemasan pasien  
 **Tech Stack:** A-Frame (WebVR), GLTF/GLB models, HTML/JS  
 **Deadline:** _(isi sesuai jadwal kuliah)_
 
@@ -95,46 +96,85 @@
 
 ---
 
-### 3. Abdillah — Navigasi & Interaksi User
+### 3. Abdillah — Navigasi & Interaksi User + Adaptive Logic
 
-**Tujuan:** User bisa bergerak di dalam ruangan dan mengaktifkan konten interaktif (video, tombol, dll).
+**Tujuan:** User bisa bergerak di dalam ruangan, mengaktifkan video edukasi, dan sistem beradaptasi berdasarkan respons pasien (mengerti / belum).
 
 **Detail Tugas:**
 - Membuat WASD movement dan mouse look
-- Membuat tombol **DUDUK** (user pindah ke posisi duduk / kamera turun)
-- Membuat trigger video (memutar video pembelajaran saat diaktifkan)
-- Membuat tombol **TIDAK** (menolak/skip sesuatu)
-- Membuat tombol **NEXT** (lanjut ke bagian berikutnya)
+- Membuat tombol **DUDUK** (kamera turun ke posisi duduk saat pasien klik kursi)
+- Membuat trigger video edukasi X-Ray
+- Membuat sistem **YA / BELUM** setelah tiap segmen video (adaptive if-else)
+- Membuat tombol **NEXT** (lanjut ke segmen berikutnya)
+- Membuat simulasi audio mesin X-Ray dan pertanyaan "Apakah Anda siap?"
 
 **Prosedur:**
-1. Pastikan `wasd-controls` dan `look-controls` sudah aktif di kamera (base dari Arjun)
-2. Implementasi tombol **DUDUK**:
+
+1. Pastikan `wasd-controls` dan `look-controls` aktif (base dari Arjun)
+
+2. Implementasi tombol **DUDUK** — klik objek kursi untuk pindah posisi:
    ```javascript
-   function duduk() {
-     document.querySelector('#cameraRig').setAttribute('position', '0 0.8 2');
-   }
+   document.querySelector('#kursi').addEventListener('click', () => {
+     document.querySelector('#cameraRig').setAttribute('position', '0 0.9 1');
+   });
    ```
-3. Implementasi trigger video — saat user klik objek/tombol tertentu, video diputar:
+
+3. Implementasi trigger video + video player di scene:
    ```html
    <a-assets>
-     <video id="edu-video" src="video/materi.mp4"></video>
+     <video id="edu-video" src="video/xray_intro.mp4" preload="auto"></video>
    </a-assets>
-   <a-video src="#edu-video" position="0 2 -3" width="4" height="2.25"></a-video>
+   <a-video id="video-screen" src="#edu-video"
+     position="0 2 -3" width="4" height="2.25" visible="false">
+   </a-video>
    ```
-4. Implementasi tombol **NEXT** — pindah ke section/slide berikutnya (toggle visibility atau pindah posisi)
-5. Implementasi tombol **TIDAK** — dismiss/hide konten atau kembali ke posisi awal
-6. Tambahkan `a-cursor` untuk deteksi klik di VR mode (tanpa mouse fisik)
-7. Test semua tombol berfungsi
+
+4. Implementasi **Adaptive If-Else System** (inti project):
+   ```javascript
+   let currentSegment = 0;
+   const segments = ['xray_intro.mp4', 'xray_process.mp4', 'xray_position.mp4'];
+
+   function onVideoEnded() {
+     showQuestion("Apakah Anda memahami penjelasan ini?");
+   }
+
+   function onAnswerYa() {
+     currentSegment++;
+     if (currentSegment < segments.length) {
+       playSegment(segments[currentSegment]);
+     } else {
+       showAudioSimulation();
+     }
+   }
+
+   function onAnswerBelum() {
+     // Ulangi segmen yang sama
+     playSegment(segments[currentSegment]);
+   }
+   ```
+
+5. Implementasi simulasi audio mesin X-Ray:
+   ```html
+   <a-sound id="xray-sound" src="sounds/xray_machine.mp3" autoplay="false"></a-sound>
+   ```
+   Tampilkan teks: *"Nanti Anda akan mendengar suara seperti ini..."* → putar suara.
+
+6. Tambahkan pertanyaan akhir: **"Apakah Anda siap?"** → tombol SIAP
+
+7. Tambahkan `a-cursor` untuk gaze/click di VR mode
 
 **Output yang Dihasilkan:**
 - [ ] WASD + mouse look berfungsi smooth
-- [ ] Tombol DUDUK mengubah posisi kamera ke posisi duduk
-- [ ] Video bisa diputar saat trigger diaktifkan
-- [ ] Tombol TIDAK berfungsi (dismiss/kembali)
-- [ ] Tombol NEXT berfungsi (lanjut ke konten berikutnya)
-- [ ] Cursor/reticle muncul di tengah layar untuk navigasi VR
+- [ ] Klik kursi → kamera berpindah ke posisi duduk
+- [ ] Video edukasi X-Ray dapat diputar di dalam scene
+- [ ] Setelah video selesai → pertanyaan "YA / BELUM" muncul
+- [ ] Pilih **BELUM** → video diulang dari awal segmen
+- [ ] Pilih **YA** → lanjut ke segmen berikutnya
+- [ ] Simulasi suara mesin X-Ray bisa diputar
+- [ ] Pertanyaan "Apakah Anda siap?" tampil di akhir sesi
+- [ ] Cursor/reticle muncul untuk navigasi VR tanpa mouse fisik
 
-**Dependensi:** Butuh script narasi dari **Tegar** untuk tahu urutan konten, dan scene dasar dari **Arjun**.
+**Dependensi:** Butuh script + urutan segmen video dari **Tegar**, dan scene dasar dari **Arjun**.
 
 ---
 
