@@ -1,55 +1,648 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>KIDMAN ROOM VR</title>
-    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-    <style>
-      body { margin: 0; overflow: hidden; }
-      .ui-panel {
-        position: absolute;
-        top: 12px;
-        left: 12px;
-        z-index: 999;
-        background: rgba(0, 0, 0, 0.6);
-        color: #fff;
-        padding: 12px 14px;
-        border-radius: 8px;
-        font-family: Arial, sans-serif;
-        font-size: 14px;
-        line-height: 1.4;
-        max-width: 280px;
-      }
-      .ui-panel strong { color: #7CFC00; }
-    </style>
-  </head>
-  <body>
-    <div class="ui-panel">
-      <strong>KIDMAN ROOM VR</strong><br>
-      WASD / Arrow keys = move<br>
-      Mouse / drag = look<br>
-      VR button = enter headset mode<br>
-      <br>
-      <em>Tekan tombol VR di pojok kanan bawah jika tersedia.</em>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>OurViAR — X-Ray Education VR</title>
+  <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { overflow: hidden; font-family: Arial, sans-serif; }
+
+    /* ── Loading Screen ── */
+    #loading-screen {
+      position: absolute; inset: 0;
+      background: #060f20;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px;
+      z-index: 9999; color: white;
+      transition: opacity 0.6s ease;
+    }
+    #loading-screen h2 { font-size: 26px; color: #4fc3f7; letter-spacing: 3px; }
+    #loading-screen p  { font-size: 13px; color: #90caf9; }
+    .spinner {
+      width: 38px; height: 38px;
+      border: 4px solid rgba(255,255,255,0.15);
+      border-top-color: #4fc3f7;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Info Panel (top-left) ── */
+    #ui-panel {
+      position: absolute; top: 12px; left: 12px; z-index: 100;
+      background: rgba(6, 15, 32, 0.82);
+      border-left: 3px solid #4fc3f7;
+      color: #cde; padding: 10px 14px; border-radius: 8px;
+      font-size: 12px; line-height: 1.7; max-width: 230px;
+      backdrop-filter: blur(6px);
+    }
+    #ui-panel strong { color: #4fc3f7; font-size: 13px; display: block; margin-bottom: 4px; }
+
+    /* ── Progress (top-center) ── */
+    #progress-bar {
+      position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+      z-index: 100; display: flex; align-items: center; gap: 10px;
+      background: rgba(6, 15, 32, 0.82); padding: 6px 16px;
+      border-radius: 20px; backdrop-filter: blur(6px);
+    }
+    #progress-track {
+      width: 110px; height: 5px; border-radius: 3px;
+      background: rgba(255,255,255,0.15); overflow: hidden;
+    }
+    #progress-fill {
+      height: 100%; background: #4fc3f7; border-radius: 3px;
+      width: 0%; transition: width 0.6s ease;
+    }
+    #progress-label { font-size: 11px; color: #90caf9; white-space: nowrap; }
+
+    /* ── Base overlay ── */
+    .overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; pointer-events: none;
+    }
+    .overlay.active { pointer-events: auto; }
+    .overlay.hidden { display: none; }
+
+    .overlay-box {
+      background: rgba(6, 15, 32, 0.94);
+      border: 1px solid rgba(79, 195, 247, 0.35);
+      border-radius: 14px; padding: 30px 40px;
+      max-width: 500px; width: 90%; text-align: center; color: #fff;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+      animation: fadeUp 0.3s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .overlay-box .tag {
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: #4fc3f7; margin-bottom: 12px; display: block;
+    }
+    .overlay-box p { font-size: 16px; line-height: 1.65; color: #ddeeff; }
+    .overlay-box .sub { font-size: 13px; color: #7cb8d4; margin-top: 8px; }
+
+    /* ── Buttons ── */
+    .btn-row { display: flex; gap: 10px; justify-content: center; margin-top: 22px; flex-wrap: wrap; }
+    .btn {
+      padding: 10px 26px; border-radius: 8px; border: none;
+      font-size: 14px; font-weight: bold; cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.2s;
+      letter-spacing: 0.4px;
+    }
+    .btn:hover  { transform: scale(1.04); box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+    .btn:active { transform: scale(0.97); }
+    .btn-blue  { background: #4fc3f7; color: #060f20; }
+    .btn-green { background: #4caf7a; color: #fff; }
+    .btn-red   { background: #e05555; color: #fff; }
+    .btn-gray  { background: rgba(255,255,255,0.12); color: #cde; border: 1px solid rgba(255,255,255,0.2); }
+
+    /* ── Retry badge ── */
+    #retry-badge {
+      font-size: 12px; color: #ffb74d;
+      margin-top: 10px; display: block;
+    }
+    #retry-badge.hidden { display: none; }
+
+    /* ── Video title badge (bottom center) ── */
+    #video-badge {
+      position: absolute; bottom: 64px; left: 50%; transform: translateX(-50%);
+      z-index: 100; pointer-events: none;
+      background: rgba(6, 15, 32, 0.85);
+      border: 1px solid rgba(79, 195, 247, 0.3);
+      border-radius: 20px; padding: 6px 20px;
+      font-size: 13px; color: #4fc3f7; white-space: nowrap;
+    }
+    #video-badge.hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- ── Loading Screen ── -->
+  <div id="loading-screen">
+    <h2>OurViAR</h2>
+    <p>Memuat lingkungan virtual...</p>
+    <div class="spinner"></div>
+  </div>
+
+  <!-- ── Info Panel ── -->
+  <div id="ui-panel">
+    <strong>X-RAY EDUCATION VR</strong>
+    WASD / ↑↓←→ = bergerak<br>
+    Mouse / drag = lihat<br>
+    Klik objek = berinteraksi<br>
+    Tombol VR = mode headset
+  </div>
+
+  <!-- ── Progress Bar ── -->
+  <div id="progress-bar">
+    <div id="progress-track"><div id="progress-fill"></div></div>
+    <span id="progress-label">Memuat</span>
+  </div>
+
+  <!-- ── Message Overlay (instruksi bertahap) ── -->
+  <div id="msg-overlay" class="overlay hidden active">
+    <div class="overlay-box">
+      <span class="tag" id="msg-tag">Instruksi</span>
+      <p id="msg-text"></p>
+      <div class="btn-row" id="msg-actions"></div>
     </div>
+  </div>
 
-    <a-scene background="color: #111" renderer="antialias: true; colorManagement: true;" vr-mode-ui="enabled: true">
-      <a-assets>
-        <a-asset-item id="room-model" src="kidman_room.glb"></a-asset-item>
-      </a-assets>
+  <!-- ── Question Overlay (YA / BELUM) ── -->
+  <div id="q-overlay" class="overlay hidden active">
+    <div class="overlay-box">
+      <span class="tag">Evaluasi Pemahaman</span>
+      <p id="q-text">Apakah Anda memahami penjelasan ini?</p>
+      <span id="retry-badge" class="hidden"></span>
+      <div class="btn-row">
+        <button class="btn btn-green" id="btn-ya">Ya, Saya Paham</button>
+        <button class="btn btn-red"   id="btn-belum">Belum Paham</button>
+      </div>
+    </div>
+  </div>
 
-      <a-entity gltf-model="#room-model" position="0 0 0" rotation="0 180 0" scale="0.8 0.8 0.8"></a-entity>
+  <!-- ── Audio Simulation Overlay ── -->
+  <div id="audio-overlay" class="overlay hidden active">
+    <div class="overlay-box">
+      <span class="tag">Simulasi Suara</span>
+      <p>Nanti Anda akan mendengar suara seperti ini saat pemeriksaan berlangsung.</p>
+      <p class="sub">Ini adalah suara <em>normal</em> dari mesin X-Ray. Tidak perlu khawatir.</p>
+      <div class="btn-row">
+        <button class="btn btn-blue" id="btn-play-sound">Dengarkan Suaranya</button>
+      </div>
+    </div>
+  </div>
 
-      <a-entity light="type: ambient; intensity: 0.8"></a-entity>
-      <a-entity light="type: directional; intensity: 0.7; position: 1 3 2"></a-entity>
-      <a-entity light="type: directional; intensity: 0.4; position: -1 2 -1"></a-entity>
+  <!-- ── Ready Check Overlay ── -->
+  <div id="ready-overlay" class="overlay hidden active">
+    <div class="overlay-box">
+      <span class="tag">Konfirmasi Kesiapan</span>
+      <p>Anda telah memahami seluruh proses pemeriksaan X-Ray.</p>
+      <p class="sub">Apakah Anda sudah siap untuk masuk ke ruang pemeriksaan nyata?</p>
+      <div class="btn-row">
+        <button class="btn btn-green" id="btn-siap">Saya Siap</button>
+        <button class="btn btn-gray"  id="btn-tinjau">Tinjau Ulang</button>
+      </div>
+    </div>
+  </div>
 
-      <a-entity id="cameraRig" position="0 1.6 3">
-        <a-entity camera look-controls wasd-controls="acceleration: 40" position="0 0 0"></a-entity>
+  <!-- ── Final Overlay ── -->
+  <div id="final-overlay" class="overlay hidden active">
+    <div class="overlay-box">
+      <span class="tag">Sesi Selesai</span>
+      <p>Anda siap menjalani pemeriksaan X-Ray.</p>
+      <p class="sub">Silakan lepaskan headset VR dan ikuti instruksi petugas.</p>
+      <div class="btn-row">
+        <button class="btn btn-gray" id="btn-restart">Ulangi dari Awal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Video Title Badge ── -->
+  <div id="video-badge" class="hidden"></div>
+
+
+  <!-- ══════════════════════════════════════════
+       A-FRAME SCENE
+  ══════════════════════════════════════════ -->
+  <a-scene
+    id="main-scene"
+    background="color: #060f20"
+    renderer="antialias: true; colorManagement: true;"
+    vr-mode-ui="enabled: true"
+    loading-screen="enabled: false">
+
+    <a-assets timeout="30000">
+      <a-asset-item id="room-model" src="kidman_room.glb"></a-asset-item>
+
+      <!-- Video segments — letakkan file di folder video/ -->
+      <video id="vid-0" src="video/xray_intro.mp4"    preload="auto" crossorigin="anonymous" playsinline></video>
+      <video id="vid-1" src="video/xray_process.mp4"  preload="auto" crossorigin="anonymous" playsinline></video>
+      <video id="vid-2" src="video/xray_position.mp4" preload="auto" crossorigin="anonymous" playsinline></video>
+
+      <!-- Audio — letakkan file di folder sounds/ -->
+      <audio id="snd-xray"    src="sounds/xray_machine.mp3"       preload="auto"></audio>
+      <audio id="snd-ambient" src="sounds/ambient_hospital.mp3"   preload="auto"></audio>
+    </a-assets>
+
+    <!-- ── Room Model ── -->
+    <a-entity
+      id="room"
+      gltf-model="#room-model"
+      position="0 0 0"
+      rotation="0 180 0"
+      scale="0.8 0.8 0.8">
+    </a-entity>
+
+    <!-- ── Lighting ── -->
+    <a-entity light="type: ambient; intensity: 0.65"></a-entity>
+    <a-entity light="type: directional; intensity: 0.85; castShadow: true" position="2 5 3"></a-entity>
+    <a-entity light="type: directional; intensity: 0.30" position="-2 2 -2"></a-entity>
+    <a-entity light="type: point; intensity: 0.45; distance: 10; color: #e8f4fd" position="0 3.5 0"></a-entity>
+
+    <!-- ── Video Screen (tersembunyi sampai user duduk) ── -->
+    <a-entity id="video-screen-group" visible="false" position="0 2 -3.2">
+      <!-- Bingkai layar -->
+      <a-plane width="5.2" height="3.4" color="#0a1a30" opacity="0.95" position="0 0 -0.02"></a-plane>
+      <a-plane width="5.4" height="3.6" color="#1a3a5c" opacity="0.5"  position="0 0 -0.04"></a-plane>
+      <!-- Video plane -->
+      <a-video id="video-plane" src="#vid-0" width="5.0" height="2.8" position="0 0.1 0"></a-video>
+      <!-- Label bawah layar -->
+      <a-text value="EDUKASI X-RAY" align="center" color="#4fc3f7"
+        width="4" position="0 -1.55 0.01" font="exo2bold"></a-text>
+    </a-entity>
+
+    <!-- ── Play Video Button 3D (muncul setelah duduk) ── -->
+    <a-entity id="play-btn" class="clickable" visible="false" position="0 1.2 -1.8">
+      <a-plane class="clickable" width="2.2" height="0.55" color="#4fc3f7" opacity="0.92"
+        animation__hover="property: components.material.material.opacity; startEvents: mouseenter; to: 1; dur: 150"
+        animation__leave="property: components.material.material.opacity; startEvents: mouseleave; to: 0.92; dur: 150">
+      </a-plane>
+      <a-text value="▶  PLAY VIDEO" align="center" color="#060f20" width="4.5" position="0 0 0.01"></a-text>
+    </a-entity>
+
+    <!-- ── Chair Hotspot (titik interaksi duduk) ── -->
+    <!-- Sesuaikan position dengan posisi kursi di model GLB kamu -->
+    <a-entity id="chair-hotspot" class="clickable" position="0 0.5 1.0">
+      <!-- Ring animasi -->
+      <a-torus id="chair-ring" radius="0.32" radius-tubular="0.025"
+        color="#4fc3f7" rotation="90 0 0" opacity="0.9"
+        animation="property: rotation; to: 450 0 0; loop: true; dur: 2800; easing: linear">
+      </a-torus>
+      <!-- Pulse outer ring -->
+      <a-torus radius="0.46" radius-tubular="0.012" color="#4fc3f7" rotation="90 0 0" opacity="0.3"
+        animation="property: scale; from: 0.8 0.8 0.8; to: 1.2 1.2 1.2; loop: true; dur: 1400; easing: easeInOutSine; dir: alternate">
+      </a-torus>
+      <!-- Label -->
+      <a-text value="KLIK UNTUK DUDUK" align="center" color="#4fc3f7"
+        width="2.8" position="0 0.6 0"></a-text>
+    </a-entity>
+
+    <!-- ── Ground ── -->
+    <a-plane rotation="-90 0 0" width="50" height="50" color="#101c35" opacity="0.5"></a-plane>
+
+    <!-- ── Camera Rig ── -->
+    <a-entity id="cameraRig" position="0 1.6 3.5">
+      <a-entity
+        id="cam"
+        camera
+        look-controls="pointerLockEnabled: false"
+        wasd-controls="acceleration: 35">
+
+        <!-- Reticle cursor untuk VR mode -->
+        <a-cursor
+          id="cursor"
+          color="#4fc3f7"
+          opacity="0.75"
+          raycaster="objects: .clickable; far: 12"
+          animation__enter="property: color; startEvents: mouseenter; to: #ffb74d; dur: 100"
+          animation__leave="property: color; startEvents: mouseleave; to: #4fc3f7; dur: 150"
+          animation__click="property: scale; startEvents: click; from: 0.5 0.5 0.5; to: 1 1 1; dur: 200; easing: easeOutElastic">
+        </a-cursor>
       </a-entity>
+    </a-entity>
 
-      <a-plane rotation="-90 0 0" width="50" height="50" color="#222" material="opacity: 0.6"></a-plane>
-    </a-scene>
-  </body>
+  </a-scene>
+
+
+  <script>
+  // ══════════════════════════════════════════════════════════
+  //  App — X-Ray Education VR
+  //  Arjun: scene setup sudah di atas (HTML)
+  //  Abdillah: adaptive logic ada di sini
+  //  Sihaam: UI + helpers ada di sini
+  // ══════════════════════════════════════════════════════════
+
+  const App = (() => {
+
+    // ── Konfigurasi ──
+    const SEGMENTS = [
+      { videoId: 'vid-0', title: 'Bagian 1: Apa itu X-Ray?' },
+      { videoId: 'vid-1', title: 'Bagian 2: Proses Pemeriksaan' },
+      { videoId: 'vid-2', title: 'Bagian 3: Posisi Tubuh yang Benar' },
+    ];
+    const MAX_RETRIES    = 2;      // max ulang per segmen sebelum auto-lanjut
+    const SITTING_POS    = { x: 0, y: 0.9, z: 0.9 };  // sesuaikan dengan model GLB
+
+    // ── State ──
+    let currentSegment = 0;
+    let retryCount     = 0;
+    let isSitting      = false;
+    let questionShown  = false;   // guard agar onVideoEnded tidak trigger dua kali
+
+    // ── DOM helpers ──
+    const $  = (id) => document.getElementById(id);
+    const el = {
+      loading:   $('loading-screen'),
+      msgOvl:    $('msg-overlay'),
+      qOvl:      $('q-overlay'),
+      audioOvl:  $('audio-overlay'),
+      readyOvl:  $('ready-overlay'),
+      finalOvl:  $('final-overlay'),
+      badge:     $('video-badge'),
+      progFill:  $('progress-fill'),
+      progLabel: $('progress-label'),
+      retryBadge:$('retry-badge'),
+    };
+
+    // ── Progress ──
+    function setProgress(pct, label) {
+      el.progFill.style.width  = pct + '%';
+      el.progLabel.textContent = label;
+    }
+
+    // ── Message overlay ──
+    function showMsg(tag, text, buttons = []) {
+      $('msg-tag').textContent  = tag;
+      $('msg-text').textContent = text;
+      const row = $('msg-actions');
+      row.innerHTML = '';
+      buttons.forEach(({ label, cls, cb }) => {
+        const btn = document.createElement('button');
+        btn.className   = `btn ${cls}`;
+        btn.textContent = label;
+        btn.onclick     = cb;
+        row.appendChild(btn);
+      });
+      el.msgOvl.classList.remove('hidden');
+    }
+    function hideMsg() { el.msgOvl.classList.add('hidden'); }
+
+    // ── Question overlay ──
+    function showQuestion(text) {
+      if (questionShown) return;
+      questionShown = true;
+      $('q-text').textContent = text;
+      if (retryCount > 0) {
+        el.retryBadge.textContent = `Percobaan ke-${retryCount + 1} dari ${MAX_RETRIES + 1}`;
+        el.retryBadge.classList.remove('hidden');
+      } else {
+        el.retryBadge.classList.add('hidden');
+      }
+      el.qOvl.classList.remove('hidden');
+    }
+    function hideQuestion() {
+      questionShown = false;
+      el.qOvl.classList.add('hidden');
+      el.retryBadge.classList.add('hidden');
+    }
+
+    // ── Video badge ──
+    function showBadge(text) {
+      el.badge.textContent = text;
+      el.badge.classList.remove('hidden');
+    }
+    function hideBadge() { el.badge.classList.add('hidden'); }
+
+    // ── Init ──
+    function init() {
+      const scene = document.querySelector('a-scene');
+      if (scene.hasLoaded) onSceneLoaded();
+      else scene.addEventListener('loaded', onSceneLoaded);
+    }
+
+    function onSceneLoaded() {
+      // Sembunyikan loading screen
+      el.loading.style.opacity = '0';
+      setTimeout(() => { el.loading.style.display = 'none'; }, 600);
+
+      // Bind video ended events
+      SEGMENTS.forEach(seg => {
+        const v = $(seg.videoId);
+        if (v) v.addEventListener('ended', onVideoEnded);
+      });
+
+      // Bind chair hotspot
+      $('chair-hotspot').addEventListener('click', onChairClick);
+
+      // Bind play button
+      $('play-btn').addEventListener('click', onPlayBtnClick);
+
+      // Bind question buttons
+      $('btn-ya').onclick    = onAnswerYa;
+      $('btn-belum').onclick = onAnswerBelum;
+
+      // Bind audio button
+      $('btn-play-sound').onclick = playXraySound;
+
+      // Bind ready buttons
+      $('btn-siap').onclick   = onReady;
+      $('btn-tinjau').onclick = onNotReady;
+
+      // Bind restart
+      $('btn-restart').onclick = () => location.reload();
+
+      // Ambient suara rumah sakit (opsional, low volume)
+      const ambient = $('snd-ambient');
+      if (ambient) {
+        ambient.volume = 0.15;
+        ambient.loop   = true;
+        ambient.play().catch(() => {});  // silent fail jika file belum ada
+      }
+
+      setProgress(15, 'Selamat Datang');
+
+      // Welcome message
+      setTimeout(() => {
+        showMsg(
+          'Selamat Datang',
+          'Anda berada di simulasi virtual ruang X-Ray. Silakan menuju kursi pemeriksaan untuk memulai sesi edukasi.',
+          [{ label: 'Saya Mengerti', cls: 'btn-blue', cb: () => {
+            hideMsg();
+            setProgress(25, 'Menuju Kursi');
+          }}]
+        );
+      }, 900);
+    }
+
+    // ── Interaksi: duduk di kursi ──
+    function onChairClick() {
+      if (isSitting) return;
+      isSitting = true;
+
+      // Pindah kamera ke posisi duduk
+      $('cameraRig').setAttribute('position',
+        `${SITTING_POS.x} ${SITTING_POS.y} ${SITTING_POS.z}`);
+
+      // Matikan WASD saat menonton video
+      $('cam').setAttribute('wasd-controls', 'enabled: false');
+
+      // Sembunyikan hotspot, tampilkan layar + tombol play
+      $('chair-hotspot').setAttribute('visible', false);
+      $('video-screen-group').setAttribute('visible', true);
+      $('play-btn').setAttribute('visible', true);
+
+      setProgress(35, 'Siap Belajar');
+      showMsg(
+        'Duduk',
+        'Anda kini berada di kursi pemeriksaan. Tekan tombol Play Video untuk memulai video edukasi.',
+        [{ label: 'OK', cls: 'btn-blue', cb: hideMsg }]
+      );
+    }
+
+    // ── Play video pertama kali ──
+    function onPlayBtnClick() {
+      $('play-btn').setAttribute('visible', false);
+      playSegment(currentSegment);
+    }
+
+    // ── Putar segmen video ──
+    function playSegment(idx) {
+      const seg = SEGMENTS[idx];
+      questionShown = false;
+
+      // Ganti sumber video di a-video
+      $('video-plane').setAttribute('src', `#${seg.videoId}`);
+      showBadge(seg.title);
+      hideMsg();
+
+      // Coba putar video
+      const vid = $(seg.videoId);
+      if (vid) {
+        vid.currentTime = 0;
+        vid.play().catch(() => {
+          // File video belum ada → simulasikan dengan delay 4 detik
+          console.warn(`[OurViAR] Video "${seg.videoId}" tidak ditemukan. Auto-advance dalam 4 detik.`);
+          setTimeout(onVideoEnded, 4000);
+        });
+      } else {
+        setTimeout(onVideoEnded, 4000);
+      }
+
+      // Update progress
+      const progMap = [40, 55, 68];
+      setProgress(progMap[idx] ?? 68, seg.title);
+    }
+
+    // ── Video selesai → tampilkan pertanyaan ──
+    function onVideoEnded() {
+      hideBadge();
+      const seg = SEGMENTS[currentSegment];
+      const topik = seg.title.replace(/Bagian \d+:\s*/, '');
+      showQuestion(`Apakah Anda memahami penjelasan tentang "${topik}"?`);
+    }
+
+    // ══════════════════════════════════
+    //  ADAPTIVE IF-ELSE LOGIC (Abdillah)
+    // ══════════════════════════════════
+
+    function onAnswerYa() {
+      hideQuestion();
+      retryCount = 0;
+      currentSegment++;
+
+      if (currentSegment < SEGMENTS.length) {
+        // Lanjut ke segmen berikutnya
+        showMsg(
+          'Bagus!',
+          `Pemahaman Anda baik. Mari lanjutkan ke bagian berikutnya.`,
+          [{ label: 'Lanjutkan', cls: 'btn-blue', cb: () => {
+            hideMsg();
+            playSegment(currentSegment);
+          }}]
+        );
+      } else {
+        // Semua segmen selesai → audio simulation
+        setTimeout(startAudioSimulation, 400);
+      }
+    }
+
+    function onAnswerBelum() {
+      hideQuestion();
+      retryCount++;
+
+      if (retryCount > MAX_RETRIES) {
+        // Sudah max retry → paksa lanjut dengan pesan supportif
+        retryCount = 0;
+        showMsg(
+          'Tidak Apa-apa',
+          'Jangan khawatir. Petugas kami akan memandu Anda langsung saat pemeriksaan nanti.',
+          [{ label: 'Lanjutkan', cls: 'btn-blue', cb: () => {
+            hideMsg();
+            currentSegment++;
+            if (currentSegment < SEGMENTS.length) {
+              playSegment(currentSegment);
+            } else {
+              startAudioSimulation();
+            }
+          }}]
+        );
+      } else {
+        // Putar ulang segmen yang sama
+        showMsg(
+          'Mari Kita Ulang',
+          `Tidak masalah. Video akan diputar ulang agar lebih jelas.`,
+          [{ label: 'Putar Ulang', cls: 'btn-blue', cb: () => {
+            hideMsg();
+            playSegment(currentSegment);
+          }}]
+        );
+      }
+    }
+
+    // ── Audio simulation ──
+    function startAudioSimulation() {
+      setProgress(80, 'Simulasi Suara');
+      el.audioOvl.classList.remove('hidden');
+    }
+
+    function playXraySound() {
+      el.audioOvl.classList.add('hidden');
+      const snd = $('snd-xray');
+      if (snd) {
+        snd.play().catch(() => {
+          console.warn('[OurViAR] File suara X-Ray tidak ditemukan. Lanjut otomatis.');
+        });
+        snd.onended = showReadyCheck;
+        setTimeout(showReadyCheck, 5000);   // fallback jika file belum ada
+      } else {
+        setTimeout(showReadyCheck, 1500);
+      }
+    }
+
+    // ── Ready check ──
+    function showReadyCheck() {
+      setProgress(92, 'Hampir Selesai');
+      el.readyOvl.classList.remove('hidden');
+    }
+
+    function onReady() {
+      el.readyOvl.classList.add('hidden');
+      setProgress(100, 'Selesai');
+
+      // Re-enable gerakan
+      $('cam').setAttribute('wasd-controls', 'enabled: true');
+
+      el.finalOvl.classList.remove('hidden');
+    }
+
+    function onNotReady() {
+      el.readyOvl.classList.add('hidden');
+      // Reset ke segmen pertama
+      currentSegment = 0;
+      retryCount     = 0;
+      setProgress(35, 'Tinjau Ulang');
+      showMsg(
+        'Tinjau Ulang',
+        'Tentu saja. Mari tonton kembali materi dari awal.',
+        [{ label: 'Mulai Ulang', cls: 'btn-blue', cb: () => {
+          hideMsg();
+          playSegment(0);
+        }}]
+      );
+    }
+
+    return { init };
+
+  })();
+
+  document.addEventListener('DOMContentLoaded', App.init);
+  </script>
+
+</body>
 </html>
